@@ -49,3 +49,6 @@ logs/
 
 *.png
 *.pdf
+
+# vscode
+.vscode
