@@ -1,0 +1,51 @@
+# Ignored file from project folder
+dataset/
+.history
+
+
+# Default ignored files
+/shelf/
+/workspace.xml
+# Editor-based HTTP Client requests
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+
+# Large Data
+*.zip
+
+
+# IDE
+.idea/
+*.iml
+.shelf/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs and temp
+logs/
+*.log
+*.tmp
+
+*.png
+*.pdf
