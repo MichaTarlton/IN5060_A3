@@ -3,6 +3,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+import os
+import argparse
+
+saveGraphs = False
+showGraphs = True 
 
 def make_3_top_2_bottom(figsize=(12, 6), top_height=1, bottom_height=1, dpi=100):
     """
@@ -44,7 +49,10 @@ def makeViolinGraphs(dfs, title='violingraph'):
             break
         
     fig.suptitle(title, fontsize=16, fontweight='bold')
-    plt.show()
+    if saveGraphs:
+        plt.savefig(title)
+    if showGraphs:
+        plt.show()
     
 """
 Makes violin graphs for all groups both tasks
@@ -118,7 +126,24 @@ def ageGroups(df):
         print("Could not make old.xlsx")       
     '''
     
-filePath = 'questionnaire_data-561422-2025-11-17-1240.xlsx'
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--hide', action='store_true', default=False, help='Show graphs (True/False)')
+ 
+parser.add_argument('--save', action='store_true', default=False, help='save graphs (True/False)') 
+                    
+args = parser.parse_args()
+
+if args.hide:
+    print("Graphs will be hidden")
+    showGraphs = False
+
+if args.save:
+    print("Graphs will be saved as png")
+    saveGraphs = args.save
+    
+parent_dir = os.path.dirname(os.getcwd())  
+filePath = f"{parent_dir}\data\questionnaire_data-561422-2025-11-17-1240.xlsx"
 df = pd.read_excel(filePath)
 df.drop(columns=df.columns[df.columns.str.contains(r'\$')], inplace=True)
 allGroups(df)
