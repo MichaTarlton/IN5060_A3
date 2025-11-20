@@ -10,12 +10,6 @@ saveGraphs = False
 showGraphs = True 
 saveExcel = False
 
-
-
-
-
-
-
 def make_3_top_2_bottom(figsize=(12, 6), top_height=1, bottom_height=1, dpi=100):
     """
     Create a figure where all visible subplots are equal-sized using GridSpec.
@@ -41,6 +35,7 @@ def makeViolinGraphs(dfs, title='violingraph'):
     #fig, axes = plt.subplots(nrows=1, ncols=5, figsize=(8, 6))
     fig, axes = make_3_top_2_bottom(figsize=(12, 6), top_height=1, bottom_height=1.2)
     #axes = axes.flatten()
+    fig.suptitle(title, fontsize=16, fontweight='bold')
 
     for i, ax in enumerate(axes):
         
@@ -52,10 +47,10 @@ def makeViolinGraphs(dfs, title='violingraph'):
         ax.set_xlabel('Question')
         ax.set_ylabel('Difficulty')
         ax.set_title(delay[i])
+        ax.axis(ymin=0.1,ymax=5.9)
         if i == 4:
             break
         
-    fig.suptitle(title, fontsize=16, fontweight='bold')
     if saveGraphs:
         plt.savefig(title)
     if showGraphs:
@@ -66,6 +61,8 @@ Makes violin graphs for all groups both tasks
 
 """
 def allGroups(df):
+    
+
     dfs = [df.iloc[:, i : i + 4] for i in range(5, 25, 4)]
     makeViolinGraphs(dfs, 'Moving Cubes')
     dfs = [df.iloc[:, i : i + 4] for i in range(25, 45, 4)]
@@ -157,11 +154,17 @@ if args.save:
 if args.saveExcel:
     print("excell sheets will be saved")
     saveExcel = args.saveExcel
-    
+
+
+
 parent_dir = os.path.dirname(os.getcwd())  
 filePath = f"{parent_dir}\data\questionnaire_data-561422-2025-11-17-1240.xlsx"
 df = pd.read_excel(filePath)
+
+
 df.drop(columns=df.columns[df.columns.str.contains(r'\$')], inplace=True)
+dfs = [df.iloc[:, i : i + 4] for i in range(5, 25, 4)]
+makeViolinGraphs(dfs, 'ignore this')
 allGroups(df)
 genderGroups(df)
 ageGroups(df)
