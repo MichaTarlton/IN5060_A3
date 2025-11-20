@@ -8,6 +8,13 @@ import argparse
 
 saveGraphs = False
 showGraphs = True 
+saveExcel = False
+
+
+
+
+
+
 
 def make_3_top_2_bottom(figsize=(12, 6), top_height=1, bottom_height=1, dpi=100):
     """
@@ -84,17 +91,18 @@ def genderGroups(df):
     makeViolinGraphs(dfs, 'Moving Cans Females')
     
     #makes excel sheets to inspect what data is used
-    '''
-    try :
-        dfMale.to_excel('Male.xlsx', index=False)
-    except PermissionError:
-        print("Could not make Male.xlsx")
-        
-    try :
-        dfFemale.to_excel('Female.xlsx', index=False)
-    except PermissionError:
-        print("Could not make Female.xlsx")    
-    '''
+    if(saveExcel):    
+
+        try :
+            dfMale.to_excel('Male.xlsx', index=False)
+        except PermissionError:
+            print("Could not make Male.xlsx")
+            
+        try :
+            dfFemale.to_excel('Female.xlsx', index=False)
+        except PermissionError:
+            print("Could not make Female.xlsx")  
+            
 """
 Makes violin graphs for both age groups both tasks
 
@@ -113,25 +121,29 @@ def ageGroups(df):
     makeViolinGraphs(dfs, 'Moving Cans age 25 or more')
     
     
-    '''
+    
         #makes excel sheets to inspect what data is used
-    try :
-        dfYoung.to_excel('young.xlsx', index=False)
-    except PermissionError:
-        print("Could not make young.xlsx")
+    if(saveExcel):    
         
-    try :
-        dfOld.to_excel('old.xlsx', index=False)
-    except PermissionError:
-        print("Could not make old.xlsx")       
-    '''
+        try :
+            dfYoung.to_excel('young.xlsx', index=False)
+        except PermissionError:
+            print("Could not make young.xlsx")
+            
+        try :
+            dfOld.to_excel('old.xlsx', index=False)
+        except PermissionError:
+            print("Could not make old.xlsx")       
+    
     
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--hide', action='store_true', default=False, help='Show graphs (True/False)')
  
 parser.add_argument('--save', action='store_true', default=False, help='save graphs (True/False)') 
-                    
+
+parser.add_argument('--saveExcel', action='store_true', default=False, help='save excel sheets of the filtered data (True/False)') 
+        
 args = parser.parse_args()
 
 if args.hide:
@@ -141,6 +153,10 @@ if args.hide:
 if args.save:
     print("Graphs will be saved as png")
     saveGraphs = args.save
+    
+if args.saveExcel:
+    print("excell sheets will be saved")
+    saveExcel = args.saveExcel
     
 parent_dir = os.path.dirname(os.getcwd())  
 filePath = f"{parent_dir}\data\questionnaire_data-561422-2025-11-17-1240.xlsx"
