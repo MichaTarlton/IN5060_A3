@@ -132,15 +132,11 @@ def ageGroups(df):
         except PermissionError:
             print("Could not make old.xlsx")       
     
-    
-
+   
 parser = argparse.ArgumentParser()
 parser.add_argument('--hide', action='store_true', default=False, help='Show graphs (True/False)')
- 
 parser.add_argument('--save', action='store_true', default=False, help='save graphs (True/False)') 
-
-parser.add_argument('--saveExcel', action='store_true', default=False, help='save excel sheets of the filtered data (True/False)') 
-        
+parser.add_argument('--saveExcel', action='store_true', default=False, help='save excel sheets of the filtered data (True/False)')        
 args = parser.parse_args()
 
 if args.hide:
@@ -155,13 +151,9 @@ if args.saveExcel:
     print("excell sheets will be saved")
     saveExcel = args.saveExcel
 
-
-
 parent_dir = os.path.dirname(os.getcwd())  
 filePath = f"{parent_dir}\data\questionnaire_data-561422-2025-11-17-1240.xlsx"
 df = pd.read_excel(filePath)
-
-
 df.drop(columns=df.columns[df.columns.str.contains(r'\$')], inplace=True)
 dfs = [df.iloc[:, i : i + 4] for i in range(5, 25, 4)]
 makeViolinGraphs(dfs, 'ignore this')
