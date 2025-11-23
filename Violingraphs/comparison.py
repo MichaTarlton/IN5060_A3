@@ -108,15 +108,24 @@ def violin_compare_two(
     
     print(means_df)
     meansReversed = []
-    
-    print(len(means))
-    for x in range(len(means)):
-        if x % 2 == 0:
-            meansReversed.append(means[x + 1])
-            
-        else:
-            meansReversed.append(means[x - 1])
-    
+    stdsReversed = []
+    if(labels[0] == "Male"):
+
+        print(len(means))
+        for x in range(len(means)):
+            if x % 2 == 0:
+                meansReversed.append(means[x + 1])
+                stdsReversed.append(stds[x + 1])
+                
+            else:
+                meansReversed.append(means[x - 1])
+                stdsReversed.append(stds[x - 1])
+                
+        
+    else:
+        meansReversed = means
+        stdsReversed = stds
+        
     print(meansReversed) 
     
    
@@ -169,6 +178,9 @@ def violin_compare_two(
         fig.savefig(save_path, dpi=dpi, bbox_inches="tight")
     
     
+    
+    
+    
     violin_centers = []
     for coll in ax.collections:
     # Only consider PolyCollection objects which contain the violin bodies
@@ -180,7 +192,7 @@ def violin_compare_two(
                 violin_centers.append(x_mean)
 
     
-    h = ax.errorbar(violin_centers, meansReversed, yerr=stds, fmt='o', color='k', capsize=5, label='mean ± std')
+    h = ax.errorbar(violin_centers, meansReversed, yerr=stdsReversed, fmt='o', color='k', capsize=5, label='mean ± std')
  
     handles, labels = ax.get_legend_handles_labels()
     handles.append('mean ± std')
@@ -221,6 +233,9 @@ def genderGroups(df):
         ylabel=("Exerienced delay")
     )
 
+    
+    if saveGraphs:
+        plt.savefig("Experienced delay moving cubes genders")
     plt.show()
     
     
@@ -240,6 +255,9 @@ def genderGroups(df):
         ylabel=("Reported difficulty")
     )
 
+    
+    if saveGraphs:
+        plt.savefig("Difficulty moving cubes genders")
     plt.show()
 
 
@@ -258,6 +276,8 @@ def genderGroups(df):
         ylabel=("Reported sense of control")
     )
 
+    if saveGraphs:
+        plt.savefig("Felt control moving cubes genders")
     plt.show()
     
 
@@ -275,53 +295,109 @@ def genderGroups(df):
         xlabel=("Delay"),
         ylabel=("Reported sense of arm feeling like your own")
     )
-
+    if saveGraphs:
+        plt.savefig("How much arm feels like your own moving cubes")
     plt.show()
     
-    #makes excel sheets to inspect what data is used
-    if(saveExcel):    
+    
 
-        try :
-            dfMale.to_excel('Male.xlsx', index=False)
-        except PermissionError:
-            print("Could not make Male.xlsx")
+
             
-        try :
-            dfFemale.to_excel('Female.xlsx', index=False)
-        except PermissionError:
-            print("Could not make Female.xlsx")  
+            
+            
+            
+            
             
 """
 Makes violin graphs for both age groups both tasks
 
 """  
 def ageGroups(df):
-    dfYoung = df[df["How old are you?"] <= 24]
-    dfs = [dfYoung.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-    makeViolinGraphs(dfs, 'Moving Cubes age 24 or less')
-    dfs = [dfYoung.iloc[:, i : i + 4] for i in range(25, 45, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans age 24 or less')
 
+    dfYoung = df[df["How old are you?"] <= 24]
     dfOld = df[df["How old are you?"] >= 25]
-    dfs = [dfOld.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans age 25 or more')
-    dfs = [dfOld.iloc[:, i : i + 4] for i in range(25, 45, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans age 25 or more')
-    
-    
-    
-        #makes excel sheets to inspect what data is used
-    if(saveExcel):    
+
+
+    delayYoung  = dfYoung.iloc[:, 5:25:4]
+    delayOld = dfOld.iloc[:, 5:25:4]
         
-        try :
-            dfYoung.to_excel('young.xlsx', index=False)
-        except PermissionError:
-            print("Could not make young.xlsx")
-            
-        try :
-            dfOld.to_excel('old.xlsx', index=False)
-        except PermissionError:
-            print("Could not make old.xlsx")       
+    
+    
+    
+    fig, ax = violin_compare_two(
+        delayYoung,
+        delayOld,
+        labels=("age 24 or lower", "age 25 or higher"),
+        index_labels=['0ms', '50ms', '100ms', '150ms', '200ms'],
+        title="Experienced delay moving cubes",
+        xlabel=("Delay"),
+        ylabel=("Exerienced delay")
+    )
+
+    if saveGraphs:
+        plt.savefig("Experienced delay moving cubes ages")
+    plt.show()
+    
+    
+    
+    difficultyMale  = dfYoung.iloc[:, 6:25:4]
+    difficultyFemale = dfOld.iloc[:, 6:25:4]
+    
+    #"createSingleLineGraph(difficultyMale, difficultyFemale, "Male", "Female", "Difficulty moving cubes", "Reported difficulty")
+    
+    fig, ax = violin_compare_two(
+        difficultyMale,
+        difficultyFemale,
+        labels=("age 24 or lower", "age 25 or higher"),
+        index_labels=['0ms', '50ms', '100ms', '150ms', '200ms'],
+        title="Difficulty moving cubes",
+        xlabel=("Delay"),
+        ylabel=("Reported difficulty")
+    )
+
+    if saveGraphs:
+        plt.savefig("Difficulty moving cubes ages")
+    plt.show()
+
+
+    controlMale  = dfYoung.iloc[:, 7:25:4]
+    controlFemale = dfOld.iloc[:, 7:25:4]
+
+   # createSingleLineGraph(controlMale, controlFemale, "Male", "Female", "Felt control moving cubes", "Reported sense of control")
+    
+    fig, ax = violin_compare_two(
+        controlMale,
+        controlFemale,
+        labels=("age 24 or lower", "age 25 or higher"),
+        index_labels=['0ms', '50ms', '100ms', '150ms', '200ms'],
+        title="Felt control moving cubes",
+        xlabel=("Delay"),
+        ylabel=("Reported sense of control")
+    )
+
+    if saveGraphs:
+        plt.savefig("Felt control moving cubes ages")
+    plt.show()
+    
+
+    feelMale  = dfYoung.iloc[:, 8:25:4]
+    feelFemale = dfOld.iloc[:, 8:25:4]
+
+  #  createSingleLineGraph(feelMale, feelFemale, "Male", "Female", "Feeling like own arm moving cubes", "Reported sense of feel")
+   
+    fig, ax = violin_compare_two(
+        feelMale,
+        feelFemale,
+        labels=("age 24 or lower", "age 25 or higher"),
+        index_labels=['0ms', '50ms', '100ms', '150ms', '200ms'],
+        title="How much arm feels like your own moving cubes",
+        xlabel=("Delay"),
+        ylabel=("Reported sense of arm feeling like your own")
+    )
+
+    if saveGraphs:
+        plt.savefig("How much arm feels like your own moving cubes ages")    
+    plt.show()
     
    
 parser = argparse.ArgumentParser()
@@ -350,4 +426,4 @@ df.drop(columns=df.columns[df.columns.str.contains(r'\$')], inplace=True)
 
 
 genderGroups(df)
-#ageGroups(df)
+ageGroups(df)
