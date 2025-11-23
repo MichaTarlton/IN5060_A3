@@ -46,7 +46,7 @@ def makeViolinGraphs(dfs, title='violingraph'):
         means = dfs[i].mean()
         stds  = dfs[i].std()
                 
-        print(means)
+        #print(means)
         #print(stds)
         sns.set(style="whitegrid")
         # use data=df[selected] — seaborn will create one violin per column in that order
@@ -95,21 +95,55 @@ def allGroups(df):
 Makes violin graphs for male/female genders both tasks
 
 """ 
+
+
+
+def createSingleLineGraph(df1, df2, label1, label2, title, ylabel):
+
+
+    plt.plot(['0ms', '50ms', '100ms', '150ms', '200ms'], df1.mean(numeric_only=True), marker='o', label="Male")
+    plt.plot(['0ms', '50ms', '100ms', '150ms', '200ms'], df2.mean(numeric_only=True), marker='o', label="Female")
+    plt.title(title)
+    plt.xlabel("Delay")
+    plt.ylabel(ylabel)
+    plt.axis(ymin=1,ymax=5)
+    plt.grid(True)
+    plt.legend()
+    plt.show()
+    
+
+
+
 def genderGroups(df):
     
     #makes violin graphs for males
     dfMale = df[df["What is your gender"] == "Male"]
-    dfs = [dfMale.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-    makeViolinGraphs(dfs, 'Moving Cubes Males')
-    dfs = [dfMale.iloc[:, i : i + 4] for i in range(25, 45, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans Males')
-    
-    #makes violin graphs for females
     dfFemale = df[df["What is your gender"] == "Female"]
-    dfs = [dfFemale.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-    makeViolinGraphs(dfs, 'Moving Cubes Females')
-    dfs = [dfFemale.iloc[:, i : i + 4] for i in range(25, 45, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans Females')
+    
+    delayMale  = dfMale.iloc[:, 5:25:4]
+    delayFemale = dfFemale.iloc[:, 5:25:4]
+        
+    
+    createSingleLineGraph(delayMale, delayFemale, "Male", "Female", "Experienced delay moving cubes", "Exerienced delay")
+    
+    difficultyMale  = dfMale.iloc[:, 6:25:4]
+    difficultyFemale = dfFemale.iloc[:, 6:25:4]
+    
+    createSingleLineGraph(difficultyMale, difficultyFemale, "Male", "Female", "Difficulty moving cubes", "Reported difficulty")
+    
+
+    controlMale  = dfMale.iloc[:, 7:25:4]
+    controlFemale = dfFemale.iloc[:, 7:25:4]
+
+    createSingleLineGraph(controlMale, controlFemale, "Male", "Female", "Felt control moving cubes", "Reported sense of control")
+    
+
+    feelMale  = dfMale.iloc[:, 8:25:4]
+    feelFemale = dfFemale.iloc[:, 8:25:4]
+
+    createSingleLineGraph(feelMale, feelFemale, "Male", "Female", "Feeling like own arm moving cubes", "Reported sense of feel")
+   
+
     
     #makes excel sheets to inspect what data is used
     if(saveExcel):    
@@ -175,12 +209,13 @@ if args.saveExcel:
     print("excell sheets will be saved")
     saveExcel = args.saveExcel
 
+
 parent_dir = os.path.dirname(os.getcwd())  
 filePath = f"{parent_dir}\data\questionnaire_data-561422-2025-11-17-1240.xlsx"
 df = pd.read_excel(filePath)
 df.drop(columns=df.columns[df.columns.str.contains(r'\$')], inplace=True)
-dfs = [df.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-makeViolinGraphs(dfs, 'ignore this')
-allGroups(df)
+#dfs = [df.iloc[:, i : i + 4] for i in range(5, 25, 4)]
+#makeViolinGraphs(dfs, 'ignore this')
+#allGroups(df)
 genderGroups(df)
-ageGroups(df)
+#ageGroups(df)
