@@ -101,15 +101,18 @@ Makes violin graphs for male/female genders both tasks
 def createSingleLineGraph(df1, df2, label1, label2, title, ylabel):
 
 
-    plt.plot(['0ms', '50ms', '100ms', '150ms', '200ms'], df1.mean(numeric_only=True), marker='o', label="Male")
-    plt.plot(['0ms', '50ms', '100ms', '150ms', '200ms'], df2.mean(numeric_only=True), marker='o', label="Female")
+    plt.plot(['0ms', '50ms', '100ms', '150ms', '200ms'], df1.mean(numeric_only=True), marker='o', label=label1)
+    plt.plot(['0ms', '50ms', '100ms', '150ms', '200ms'], df2.mean(numeric_only=True), marker='o', label=label2)
     plt.title(title)
     plt.xlabel("Delay")
     plt.ylabel(ylabel)
     plt.axis(ymin=1,ymax=5)
     plt.grid(True)
     plt.legend()
-    plt.show()
+    if saveGraphs:
+        plt.savefig(title+label1+label2)
+    if showGraphs:
+        plt.show()
     
 
 
@@ -142,53 +145,39 @@ def genderGroups(df):
     feelFemale = dfFemale.iloc[:, 8:25:4]
 
     createSingleLineGraph(feelMale, feelFemale, "Male", "Female", "Feeling like own arm moving cubes", "Reported sense of feel")
-   
-
-    
-    #makes excel sheets to inspect what data is used
-    if(saveExcel):    
-
-        try :
-            dfMale.to_excel('Male.xlsx', index=False)
-        except PermissionError:
-            print("Could not make Male.xlsx")
-            
-        try :
-            dfFemale.to_excel('Female.xlsx', index=False)
-        except PermissionError:
-            print("Could not make Female.xlsx")  
-            
+  
 """
 Makes violin graphs for both age groups both tasks
 
 """  
 def ageGroups(df):
     dfYoung = df[df["How old are you?"] <= 24]
-    dfs = [dfYoung.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-    makeViolinGraphs(dfs, 'Moving Cubes age 24 or less')
-    dfs = [dfYoung.iloc[:, i : i + 4] for i in range(25, 45, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans age 24 or less')
-
     dfOld = df[df["How old are you?"] >= 25]
-    dfs = [dfOld.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans age 25 or more')
-    dfs = [dfOld.iloc[:, i : i + 4] for i in range(25, 45, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans age 25 or more')
-    
-    
-    
-        #makes excel sheets to inspect what data is used
-    if(saveExcel):    
+  
+    delayYoung  = dfYoung.iloc[:, 5:25:4]
+    delayOld = dfOld.iloc[:, 5:25:4]
         
-        try :
-            dfYoung.to_excel('young.xlsx', index=False)
-        except PermissionError:
-            print("Could not make young.xlsx")
-            
-        try :
-            dfOld.to_excel('old.xlsx', index=False)
-        except PermissionError:
-            print("Could not make old.xlsx")       
+
+    createSingleLineGraph(delayYoung, delayOld, "age 24 or lower", "age 25 or higher", "Experienced delay moving cubes", "Exerienced delay")
+    
+    difficultyYoung  = dfYoung.iloc[:, 6:25:4]
+    difficultyOld = dfOld.iloc[:, 6:25:4]
+    
+    createSingleLineGraph(difficultyYoung, difficultyOld, "age 24 or lower", "age 25 or higher", "Difficulty moving cubes", "Reported difficulty")
+    
+
+    controlYoung  = dfYoung.iloc[:, 7:25:4]
+    controlOld = dfOld.iloc[:, 7:25:4]
+
+    createSingleLineGraph(controlYoung, controlOld, "age 24 or lower", "age 25 or higher", "Felt control moving cubes", "Reported sense of control")
+    
+
+    feelYoung  = dfYoung.iloc[:, 8:25:4]
+    feelOld = dfOld.iloc[:, 8:25:4]
+
+    createSingleLineGraph(feelYoung, feelOld, "age 24 or lower", "age 25 or higher", "Feeling like own arm moving cubes", "Reported sense of feel")
+    
+  
     
    
 parser = argparse.ArgumentParser()
@@ -205,17 +194,10 @@ if args.save:
     print("Graphs will be saved as png")
     saveGraphs = args.save
     
-if args.saveExcel:
-    print("excell sheets will be saved")
-    saveExcel = args.saveExcel
-
-
 parent_dir = os.path.dirname(os.getcwd())  
 filePath = f"{parent_dir}\data\questionnaire_data-561422-2025-11-17-1240.xlsx"
 df = pd.read_excel(filePath)
 df.drop(columns=df.columns[df.columns.str.contains(r'\$')], inplace=True)
-#dfs = [df.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-#makeViolinGraphs(dfs, 'ignore this')
-#allGroups(df)
+
 genderGroups(df)
-#ageGroups(df)
+ageGroups(df)
