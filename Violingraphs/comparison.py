@@ -100,7 +100,7 @@ def violin_compare_two(
 
     print(long)
     
-    std_df = long.groupby(["index","dataset"], as_index=False)["value"].std()
+    std_df = long.groupby(["index","dataset"], as_index=False)["value"].var()
     stds = std_df["value"].tolist()   # simple Python list of means in the grouped order
 
     # result: DataFrame with columns ["index", "value"] where "value" is the mean
@@ -192,16 +192,16 @@ def violin_compare_two(
                 violin_centers.append(x_mean)
 
     
-    h = ax.errorbar(violin_centers, meansReversed, yerr=stdsReversed, fmt='o', color='k', capsize=5, label='mean ± std')
+    h = ax.errorbar(violin_centers, meansReversed, yerr=stdsReversed, fmt='o', color='k', capsize=5, label='mean ± variance')
  
     handles, labels = ax.get_legend_handles_labels()
-    handles.append('mean ± std')
+    handles.append('mean ± variance')
     labels.append(h[0])
     
     
     ax.legend(handles=handles, labels=labels, loc="upper right")
                      
-    
+    print()
 
     return fig, ax
 

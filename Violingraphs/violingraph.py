@@ -44,7 +44,7 @@ def makeViolinGraphs(dfs, title='violingraph'):
     for i, ax in enumerate(axes):
         
         means = dfs[i].mean()
-        stds  = dfs[i].std()
+        stds  = dfs[i].var()
                 
         print(means)
         #print(stds)
@@ -53,7 +53,7 @@ def makeViolinGraphs(dfs, title='violingraph'):
         sns.violinplot(data=dfs[i], ax=ax, cut=1, inner=None)
         
         x = np.arange(len(means))
-        legend_labels.append('mean ± std')
+        legend_labels.append('mean ± variance')
         h = ax.errorbar(x, means, yerr=stds, fmt='o', color='k', capsize=5, label='mean ± std')
         
         # replace xtick labels with your display names
@@ -65,7 +65,7 @@ def makeViolinGraphs(dfs, title='violingraph'):
         
         if i == 4:
             legend_handles.append(h[0])
-            legend_labels.append('mean ± std')
+            legend_labels.append('mean ± variance')
             break
                      
     legend_ax = axes[5]  # same one we turned off above
