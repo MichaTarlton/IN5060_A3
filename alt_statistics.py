@@ -14,6 +14,7 @@ def calculate_statistics(
     distributions: Sequence[Iterable[float]],
     overall: Optional[Iterable[float]] = None,
     group_labels: Optional[Sequence[str]] = None,
+    subgroup_labels: Optional[Sequence[str]] = None,
     variance_types: Optional[List[str]] = None,
     output_csv: Optional[str] = None,
 ) -> pd.DataFrame:
@@ -21,12 +22,14 @@ def calculate_statistics(
     
     Parameters
     ----------
-    distributions : sequence of array-like
-        Each element is a sample representing Y|X_i.
+    distributions : sequence of array-like or DataFrames
+        Each element is a sample representing Y|X_i. Can be arrays or DataFrames with multiple columns.
     overall : array-like, optional
         Unconditional Y samples. If None, concatenation of conditional samples.
     group_labels : sequence of str, optional
-        Labels for each distribution. Defaults to Group_1, Group_2, ...
+        Labels for each distribution (e.g., ['Male', 'Female']). 
+        If distributions are DataFrames, these label each DataFrame's group.
+        Defaults to Group_1, Group_2, ...
     variance_types : list of str, optional
         Types of variance to calculate. If None, calculates all available types.
         Available: 'sample', 'population', 'std', 'mse', 'ss', 'tukey',
@@ -37,13 +40,39 @@ def calculate_statistics(
     Returns
     -------
     pd.DataFrame
-        Statistics table with rows for each group and columns for each metric
+        Statistics table with rows for each subgroup and columns including 'Group' (main label),
+        'Subgroup' (column name), and each requested variance metric
     """
-    # Convert inputs
+    # Convert inputs - handle DataFrames with multiple columns
     numeric_dists = []
-    for dist in distributions:
-        arr, _ = _to_numeric_array(dist)
-        numeric_dists.append(arr[~np.isnan(arr)])
+    main_groups = []
+    subgroup_names = []
+    
+    for idx, dist in enumerate(distributions):
+        # Determine main group label
+        if group_labels is not None and idx < len(group_labels):
+            main_label = group_labels[idx]
+        else:
+            main_label = f"Group_{idx+1}"
+        if subgroup_labels is not None and idx < len(subgroup_labels):
+            sub_label = subgroup_labels[idx]
+        else:
+            sub_label = f"Group_{idx+1}"
+        
+        # Check if it's a DataFrame with multiple columns
+        if isinstance(dist, pd.DataFrame):
+            # Process each column as a separate distribution
+            for col in dist.columns:
+                arr, _ = _to_numeric_array(dist[col])
+                numeric_dists.append(arr[~np.isnan(arr)])
+                main_groups.append(main_label)
+                subgroup_names.append(sub_label)
+        else:
+            # Handle as regular array
+            arr, _ = _to_numeric_array(dist)
+            numeric_dists.append(arr[~np.isnan(arr)])
+            main_groups.append(main_label)
+            subgroup_names.append('all')
     
     # Overall distribution
     if overall is None:
@@ -55,11 +84,6 @@ def calculate_statistics(
     grand_mean = overall_data.mean()
     k_length = len(numeric_dists)
     
-
-    # Default group labels
-    if group_labels is None:
-        group_labels = [f"Group_{i+1}" for i in range(k_length)]
-    
     # Default variance types
     if variance_types is None:
         variance_types = ['sample', 'population', 'std', 'mse', 'ss', 'tukey',
@@ -68,9 +92,10 @@ def calculate_statistics(
     # Calculate statistics
     stats_data = []
     
-    for i, (data, label) in enumerate(zip(numeric_dists, group_labels)):
+    for data, main_group, subgroup in zip(numeric_dists, main_groups, subgroup_names):
         row = {
-            'Group': label,
+            'Group': main_group,
+            'Subgroup': subgroup,
             'N': len(data),
             'Mean': data.mean(),
         }
@@ -87,6 +112,7 @@ def calculate_statistics(
     # Add overall/total row
     overall_row = {
         'Group': 'Overall',
+        'Subgroup': 'all',
         'N': len(overall_data),
         'Mean': grand_mean,
     }
