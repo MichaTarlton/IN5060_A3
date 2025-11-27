@@ -601,10 +601,10 @@ def anova(distributions: Sequence[Iterable[float]],
     
     # 95% confidence interval for the deviation from grand mean
     # Using pooled MSE for standard error of deviation
-    se_deviation = np.sqrt(mse / n)
-    t_crit_pooled = stats.t.ppf(0.975, df_within)
-    deviation_ci_lower = deviation_from_grand - t_crit_pooled * se_deviation
-    deviation_ci_upper = deviation_from_grand + t_crit_pooled * se_deviation
+    # se_deviation = np.sqrt(mse / n)
+    # t_crit_pooled = stats.t.ppf(0.975, df_within)
+    # deviation_ci_lower = deviation_from_grand - t_crit_pooled * se_deviation
+    # deviation_ci_upper = deviation_from_grand + t_crit_pooled * se_deviation
 
     # Create ANOVA table
     anova_table_data = {
