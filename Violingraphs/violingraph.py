@@ -59,7 +59,7 @@ def makeViolinGraphs(dfs, title='violingraph'):
         # replace xtick labels with your display names
         ax.set_xticklabels(display_labels)
         ax.set_xlabel('Question')
-        ax.set_ylabel('Difficulty')
+        ax.set_ylabel('User respone on a scale from 1-5')
         ax.set_title(delay[i])
         ax.axis(ymin=0.1,ymax=5.9)
         
@@ -73,7 +73,7 @@ def makeViolinGraphs(dfs, title='violingraph'):
     legend_ax.set_axis_on()           # temporarily enable axis for placing legend
     legend_ax.axis('off')             # hide ticks & frame but keep area
     legend_ax.legend(legend_handles, legend_labels,
-                     loc='center', frameon=True, fontsize=10)
+                     loc='upper left', frameon=True, fontsize=10)
     
     if saveGraphs:
         plt.savefig(title)
@@ -137,7 +137,7 @@ def ageGroups(df):
 
     dfOld = df[df["How old are you?"] >= 25]
     dfs = [dfOld.iloc[:, i : i + 4] for i in range(5, 25, 4)]
-    makeViolinGraphs(dfs, 'Moving Cans age 25 or more')
+    makeViolinGraphs(dfs, 'Moving Cubes age 25 or more')
     dfs = [dfOld.iloc[:, i : i + 4] for i in range(25, 45, 4)]
     makeViolinGraphs(dfs, 'Moving Cans age 25 or more')
     
