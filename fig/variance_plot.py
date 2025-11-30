@@ -142,6 +142,12 @@ def _calculate_dispersion(data: np.ndarray, mean: float, variance_type: str,
     elif variance_type == 'sse':
         # Error/Within Sum of Squares (from group mean)
         return np.sum((data - mean) ** 2)
+    elif variance_type == 'sse':
+        # Error/Within Sum of Squares (from group mean)
+        return np.sum((data - mean) ** 2)
+    elif variance_type == 'alt_sse':
+        # Error/Within Sum of Squares (from group mean)
+        return np.sum((data - mean) ** 2)
     elif variance_type == 'ssa':
         # Among/Between Groups Sum of Squares
         if grand_mean is not None:
