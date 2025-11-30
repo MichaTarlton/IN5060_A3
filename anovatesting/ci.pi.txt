@@ -1,0 +1,66 @@
+# Python 3 code — requires scipy
+# pip install scipy
+
+import math
+from scipy.stats import ncf
+from scipy.optimize import brentq
+
+def ncp_ci_from_f(F_obs, df1, df2, alpha=0.05):
+    """
+    Two-sided (1-alpha) CI for noncentrality parameter lambda
+    based on observed F_obs and dfs (df1, df2).
+    Returns (lambda_lower, lambda_upper).
+    """
+    # CDF of noncentral F for given lambda:
+    cdf_given_lambda = lambda lam, x=F_obs: ncf.cdf(x, df1, df2, lam)
+
+    # Solve for lambda_L such that CDF(F_obs; df1,df2,lambda_L) = 1 - alpha/2
+    target_upper = 1.0 - alpha/2.0
+    # For lower bound: root search in lam in [0, large]
+    # If CDF at lam=0 already >= target_upper, lower bound is 0
+    if cdf_given_lambda(0.0) >= target_upper:
+        lam_lower = 0.0
+    else:
+        # find upper bracket where CDF >= target_upper
+        hi = 1.0
+        while cdf_given_lambda(hi) < target_upper:
+            hi *= 2.0
+        lam_lower = brentq(lambda lam: cdf_given_lambda(lam) - target_upper, 0.0, hi)
+
+    # Solve for lambda_U such that CDF(F_obs; df1,df2,lambda_U) = alpha/2
+    target_lower = alpha/2.0
+    # CDF decreases with lambda at fixed x, so for large lambda CDF -> 0
+    # Search bracket [0, hi2] where CDF <= target_lower
+    lo = 0.0
+    hi2 = 1.0
+    while cdf_given_lambda(hi2) > target_lower:
+        hi2 *= 2.0
+    lam_upper = brentq(lambda lam: cdf_given_lambda(lam) - target_lower, lo, hi2)
+
+    return lam_lower, lam_upper
+
+def partial_eta2_ci_from_f(F_obs, df1, df2, alpha=0.05):
+    lamL, lamU = ncp_ci_from_f(F_obs, df1, df2, alpha=alpha)
+    # Convert to partial eta-squared:
+    eta2_L = lamL / (lamL + df2) if (lamL + df2) > 0 else 0.0
+    eta2_U = lamU / (lamU + df2) if (lamU + df2) > 0 else 0.0
+    return eta2_L, eta2_U, lamL, lamU
+
+# Example using your ANOVA rows:
+# 1) C(delay): F = 1.828846, df1 = 4, df2 = 165
+# 2) C(age):   F = 2.498297, df1 = 1, df2 = 165
+# 3) Interaction: F = 0.484956, df1 = 4, df2 = 165
+
+rows = [
+    ("C(delay)",  1.828846, 4, 165),
+    ("C(age)",    2.498297, 1, 165),
+    ("C(delay):C(age)", 0.484956, 4, 165),
+]
+
+for name, Fobs, df1, df2 in rows:
+    eta2_point = (Fobs * df1) / (Fobs * df1 + df2)  # alternate point estimate via F
+    eta2_L, eta2_U, lamL, lamU = partial_eta2_ci_from_f(Fobs, df1, df2, alpha=0.05)
+    print(f"{name}: F={Fobs:.6f}, df1={df1}, df2={df2}")
+    print(f"  Partial eta^2 (point estimate) ~ {eta2_point:.4f}")
+    print(f"  95% CI for partial eta^2: [{eta2_L:.4f}, {eta2_U:.4f}]")
+    print(f"  (lambda CI: [{lamL:.4f}, {lamU:.4f}])\n")

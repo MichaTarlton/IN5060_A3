@@ -304,20 +304,7 @@ def genderGroups(df):
     
     
     
-def twowayanova(df):
-    
-    
-    columns_to_keep = ['How old are you?', 'What is your gender']
-    df_subset = df[columns_to_keep]
 
-    df_subset.loc[df['How old are you?'] <= 24, 'How old are you?'] = 24
-    df_subset.loc[df['How old are you?'] >= 25, 'How old are you?'] = 25
-    
-    
-    
-    print(df_subset)
-    
-      
             
             
             
