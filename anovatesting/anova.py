@@ -16,6 +16,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.stats.multicomp import pairwise_tukeyhsd, MultiComparison
 from statsmodels.stats.anova import anova_lm
+import scipy.stats as stats
 
 
 saveGraphs = False
@@ -162,7 +163,7 @@ def violingraph(dfs):
 
 
     # optional: provide display labels in the same order
-    display_labels = ['delay', 'Difficulty', 'control', 'part of body']
+    display_labels = ['Older Females', 'Younger Females',  'Older Males', 'Younger Males']
     delay = ['0ms', '50ms', '100ms', '150ms', '200ms']
     #fig, axes = plt.subplots(nrows=1, ncols=5, figsize=(8, 6))
     #axes = axes.flatten()
@@ -181,9 +182,10 @@ def violingraph(dfs):
     sns.set(style="whitegrid")
     # use data=df[selected] — seaborn will create one violin per column in that order
     sns.violinplot(x='Category', y='Value', data=dfs, inner=None)
-    plt.title("Difficulty response from all different categories of groups")
-    plt.ylabel("User response on difficulty across all delays on a scale from 1-5")
-
+    plt.title("Difficulty response from all four cohorts")
+    plt.ylabel("Perceived difficulty on a scale from 1-5")
+    plt.xlabel("Cohorts")
+    plt.xticks(np.arange(4), display_labels)
     x = np.arange(len(means))
     #legend_labels.append('mean ± variance')
     h = plt.errorbar(x, means['Value'], yerr=stds['Value'], fmt='o', color='k', capsize=5, label='mean ± std')
@@ -250,7 +252,7 @@ def twowayanova(df):
                  var_name="delay", value_name="response")           
     model = ols('response ~ C(delay) + C(gender) + C(delay):C(gender)', data=melted).fit()
     anova_result = sm.stats.anova_lm(model, type=2)
-    print("Two way anova results between age, delay for delay response")
+    print("Two way anova results between gender, delay for delay response")
     print(anova_result)
     print()    
     
@@ -270,6 +272,19 @@ def twowayanova(df):
     print("Two way anova results between age, delay for difficulty response")
     print(anova_result)
     
+    
+    melted['genderage'] = (melted['gender'].astype(str) + ":" + np.where(melted['age'] == 24, "young", np.where(melted['age'] == 25, "old", "other"))
+)
+    
+    
+    print("test of genderage categories")
+    print(melted)
+    
+    model = ols('response ~ C(delay) * C(genderage)', data=melted).fit()
+    anova_result = sm.stats.anova_lm(model, type=2)
+    print("Two way anova results between age*gender and  delay for difficulty response")
+    print(anova_result)
+    
     #anova_result.to_excel("Two way anova results between age, delay for difficulty response.xlsx")
     
     
@@ -277,7 +292,6 @@ def twowayanova(df):
     
     
     # Python: compute eta-squared and partial eta-squared for each effect
-    import numpy as np
     ss = {'delay': 6.552941, 'age': 1.535666, 'interaction': 1.685794, 'residual': 146.513834}
     ss_total = ss['delay'] + ss['age'] + ss['interaction'] + ss['residual']
     eta2 = {k: v/ss_total for k,v in ss.items()}
@@ -292,7 +306,6 @@ def twowayanova(df):
     
     
     # assume 'model' is the fitted OLS (smf.ols(...).fit())
-    import scipy.stats as stats
     resid = model.resid
     print("Shapiro-Wilk p:", stats.shapiro(resid).pvalue)
 
@@ -353,6 +366,9 @@ def twowayanova(df):
     }
     
     newdf = pd.DataFrame(data)
+    
+    print("dataframe for graph")
+    print(melted)
     
     violingraph(newdf)
     
